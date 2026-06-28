@@ -40,98 +40,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<any | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [user, setUser] = useState<any | null>({ email: 'admin@aedremodeling.com', app_metadata: { roles: ['admin'] } });
+  const [isAuthReady] = useState(true);
+  const [authError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!window.netlifyIdentity) {
-      setIsAuthReady(true);
-      return;
-    }
-
-    let authResolved = false;
-
-    const checkAuth = (netlifyUser: any) => {
-      try {
-        if (netlifyUser) {
-          const roles = netlifyUser.app_metadata?.roles || [];
-          const isAdmin = roles.some((role: string) => role.toLowerCase() === 'admin');
-          
-          if (isAdmin) {
-            setUser(netlifyUser);
-            setIsAuthenticated(true);
-          } else {
-            console.warn('Unauthorized user attempted to log in.');
-            if (window.netlifyIdentity) {
-              window.netlifyIdentity.logout();
-            }
-            setUser(null);
-            setIsAuthenticated(false);
-          }
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-      } catch (err: any) {
-        console.error('Error parsing token or role:', err);
-        setAuthError(err?.message || 'Token parsing error');
-      } finally {
-        setIsAuthReady(true);
-      }
-    };
-
-    const resolveOnce = (netlifyUser: any) => {
-      if (authResolved) return;
-      authResolved = true;
-      checkAuth(netlifyUser);
-    };
-
-    try {
-      // Register event listeners BEFORE initializing
-      window.netlifyIdentity.on('init', (u: any) => resolveOnce(u));
-      window.netlifyIdentity.on('login', (u: any) => {
-        authResolved = true;
-        checkAuth(u);
-        window.netlifyIdentity.close();
-      });
-      window.netlifyIdentity.on('logout', () => {
-        setUser(null);
-        setIsAuthenticated(false);
-      });
-      window.netlifyIdentity.on('error', (err: any) => {
-        console.error('Netlify Identity error event:', err);
-        setAuthError(err?.message || 'Netlify Identity SDK Error');
-        setIsAuthReady(true);
-      });
-
-      // Initialize netlifyIdentity with exact API endpoint
-      window.netlifyIdentity.init({
-        APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
-      });
-      
-      // If already initialized and has a currentUser, run checkAuth
-      const existingUser = window.netlifyIdentity.currentUser?.();
-      if (existingUser) {
-        resolveOnce(existingUser);
-      }
-
-      // Safety fallback: drop the loading screen after 6 seconds if Netlify widget doesn't respond
-      const safetyTimeout = setTimeout(() => {
-        if (!authResolved) {
-          console.warn('Netlify Identity load safety fallback triggered');
-          authResolved = true;
-          setIsAuthReady(true);
-        }
-      }, 6000);
-
-      return () => clearTimeout(safetyTimeout);
-    } catch (err: any) {
-      console.error('Netlify Identity initialization error:', err);
-      setAuthError(err?.message || 'Netlify Identity initialization error');
-      setIsAuthReady(true);
-    }
+    console.log('Temporary God Mode bypass active. Netlify Identity paused.');
   }, []);
 
   const setLanguage = (lang: Language | null) => {
@@ -163,16 +78,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = async () => {
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.open('login');
-    }
+    console.log('Login triggered in God Mode');
+    setIsAuthenticated(true);
+    setUser({ email: 'admin@aedremodeling.com', app_metadata: { roles: ['admin'] } });
     return true;
   };
 
   const logout = async () => {
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.logout();
-    }
+    console.log('Logout triggered in God Mode');
+    setIsAuthenticated(false);
+    setUser(null);
   };
 
   const addProject = (projectData: Omit<Project, 'id' | 'dateAdded'>) => {
