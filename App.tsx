@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 
 // Declare netlifyIdentity for TypeScript
@@ -125,7 +125,7 @@ const AppContent = () => {
   }
 
   return (
-    <Router>
+    <HashRouter>
       <Routes>
         {/* Public Routes wrapped in Layout */}
         <Route path="/" element={<Layout><Home /></Layout>} />
@@ -134,15 +134,15 @@ const AppContent = () => {
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
         {/* Admin Routes (Layout handled internally or full screen) */}
-        <Route path="/login" element={<NotFound />} />
-        <Route path="/admin" element={<NotFound />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/secure-portal-99x" element={<Login />} />
         <Route path="/secure-portal-99x/dashboard" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         
         {/* 404 Catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+    </HashRouter>
   );
 };
 
