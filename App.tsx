@@ -79,6 +79,12 @@ const AppContent = () => {
       });
       // Initialize netlifyIdentity
       window.netlifyIdentity.init();
+
+      // Fix Mobile External Link Routing: open widget if token is present
+      const hash = window.location.hash;
+      if (hash.includes('invite_token=') || hash.includes('recovery_token=')) {
+        window.netlifyIdentity.open();
+      }
     }
   }, []);
 

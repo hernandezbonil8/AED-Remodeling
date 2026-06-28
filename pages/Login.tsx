@@ -8,21 +8,17 @@ const Login = () => {
   const { login, t } = useApp();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleNetlifyLogin = (e: React.MouseEvent) => {
     e.preventDefault();
-    setError('');
-    try {
-      const success = await login();
-      if (success) {
-        navigate('/secure-portal-99x/dashboard');
-      } else {
-        // If login completes but returns false (not admin), redirect to homepage
-        navigate('/');
-      }
-    } catch {
-      setError('Authentication failed. Please try again.');
-      // Optionally redirect here too if they are outright rejected
-      navigate('/');
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.open('login');
+    }
+  };
+
+  const handleNetlifySignup = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.open('signup');
     }
   };
 
@@ -33,19 +29,27 @@ const Login = () => {
           <div className="w-16 h-16 bg-slate-100 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">{t('admin_access')}</h2>
-          <p className="text-slate-500">Sign in securely using your Google account to access the dashboard.</p>
+          <h2 className="text-2xl font-bold text-slate-900">{t('admin_access') || 'Admin Access'}</h2>
+          <p className="text-slate-500">Sign in to access the secure dashboard.</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <div className="space-y-4">
           <button
-            type="submit"
+            onClick={handleNetlifyLogin}
             className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition-colors"
           >
-            Sign in with Google
+            Log In
           </button>
+          
+          <button
+            onClick={handleNetlifySignup}
+            className="w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-lg hover:bg-slate-200 transition-colors"
+          >
+            Create Account
+          </button>
+          
           {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
-        </form>
+        </div>
       </div>
     </div>
   );
