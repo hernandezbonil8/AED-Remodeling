@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "AccessLog": {
+      "title": "AccessLog",
+      "description": "Log of admin accesses to the system",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "timestamp": { "type": "string", "format": "timestamp" },
+        "action": { "type": "string", "enum": ["login", "logout"] }
+      },
+      "required": ["uid", "email", "timestamp", "action"]
+    }
+  },
+  "firestore": {
+    "accessLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AccessLog" },
+      "description": "Stores logs of user authentication events."
+    }
+  }
+}

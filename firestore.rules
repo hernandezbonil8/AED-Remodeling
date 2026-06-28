@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidAccessLog(data) {
+      return data.keys().hasAll(['uid', 'email', 'timestamp', 'action']) &&
+             data.keys().size() == 4 &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && data.email.size() > 0 &&
+             data.timestamp == request.time &&
+             data.action in ['login', 'logout'] &&
+             data.uid == request.auth.uid;
+    }
+
+    match /accessLogs/{logId} {
+      // Only authenticated users can write their own access logs. Admins can read (or everyone can write logs, but no one can read them except through admin tools, which we don't have implemented so false for read).
+      allow read: if false; 
+      allow create: if isSignedIn() && isValidId(logId) && isValidAccessLog(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "AED Remodeling LLC",
+  "description": "A professional remodeling company website featuring a portfolio gallery, service listings, appointment scheduling, and a comprehensive admin dashboard for content management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
