@@ -61,9 +61,9 @@ const Services = () => {
                 <div className="relative">
                     <div className="absolute inset-0 bg-accent rounded-lg transform translate-x-4 translate-y-4"></div>
                     <img 
-                        src={`https://picsum.photos/600/400?random=${index + 10}`} 
+                        src={service.imageUrl || `https://picsum.photos/600/400?random=${index + 10}`} 
                         alt={language === 'es' ? service.title_es : service.title_en} 
-                        className="relative rounded-lg shadow-lg w-full object-cover z-10"
+                        className="relative rounded-lg shadow-lg w-full h-[350px] object-cover z-10"
                     />
                 </div>
               </div>

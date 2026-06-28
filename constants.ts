@@ -56,7 +56,8 @@ export const SERVICES_DATA: ServiceData[] = [
     title_es: 'Carpintería',
     description_en: 'Custom woodwork, framing, decking, and finishing carpentry.',
     description_es: 'Trabajos en madera a medida, estructuras, terrazas y carpintería de acabado.',
-    iconName: 'Hammer'
+    iconName: 'Hammer',
+    imageUrl: 'https://images.unsplash.com/photo-1534081390159-81dec12db7f8?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 's2',
@@ -64,7 +65,8 @@ export const SERVICES_DATA: ServiceData[] = [
     title_es: 'Electricidad',
     description_en: 'Panel upgrades, lighting installations, and general electrical repairs.',
     description_es: 'Actualización de paneles, instalaciones de iluminación y reparaciones eléctricas generales.',
-    iconName: 'Zap'
+    iconName: 'Zap',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 's3',
@@ -72,7 +74,8 @@ export const SERVICES_DATA: ServiceData[] = [
     title_es: 'Plomería',
     description_en: 'Pipe repairs, fixture installations, and full bathroom rough-ins.',
     description_es: 'Reparaciones de tuberías, instalación de accesorios y preparación completa de baños.',
-    iconName: 'Droplets'
+    iconName: 'Droplets',
+    imageUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 's4',
@@ -80,7 +83,8 @@ export const SERVICES_DATA: ServiceData[] = [
     title_es: 'Panel de Yeso y Pintura',
     description_en: 'Seamless drywall installation, texturing, and premium interior/exterior painting.',
     description_es: 'Instalación impecable de paneles de yeso, texturizado y pintura premium para interiores/exteriores.',
-    iconName: 'PaintRoller'
+    iconName: 'PaintRoller',
+    imageUrl: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 's5',
@@ -88,7 +92,8 @@ export const SERVICES_DATA: ServiceData[] = [
     title_es: 'Contratista General',
     description_en: 'Full-scale remodeling, flooring, tile work, and complete project management.',
     description_es: 'Remodelación a gran escala, pisos, trabajos en azulejos y gestión completa de proyectos.',
-    iconName: 'HardHat'
+    iconName: 'HardHat',
+    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800'
   }
 ];
 

@@ -57,7 +57,8 @@ const Admin = () => {
     title_es: '',
     description_en: '',
     description_es: '',
-    iconName: 'Hammer'
+    iconName: 'Hammer',
+    imageUrl: ''
   });
 
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
@@ -67,7 +68,8 @@ const Admin = () => {
     title_es: '',
     description_en: '',
     description_es: '',
-    iconName: 'Hammer'
+    iconName: 'Hammer',
+    imageUrl: ''
   });
 
   const handleUpdateShowcase = (e: React.FormEvent) => {
@@ -142,7 +144,8 @@ const Admin = () => {
         title_es: title_es || newService.title_en,
         description_en: newService.description_en,
         description_es: description_es || newService.description_en,
-        iconName: newService.iconName
+        iconName: newService.iconName,
+        imageUrl: newService.imageUrl || undefined
       });
 
       setNewService({
@@ -150,7 +153,8 @@ const Admin = () => {
         title_es: '',
         description_en: '',
         description_es: '',
-        iconName: 'Hammer'
+        iconName: 'Hammer',
+        imageUrl: ''
       });
     } finally {
       setIsTranslatingService(false);
@@ -185,7 +189,8 @@ const Admin = () => {
         title_es: title_es || editServiceForm.title_en,
         description_en: editServiceForm.description_en,
         description_es: description_es || editServiceForm.description_en,
-        iconName: editServiceForm.iconName
+        iconName: editServiceForm.iconName,
+        imageUrl: editServiceForm.imageUrl || undefined
       });
 
       setEditingServiceId(null);
@@ -202,7 +207,8 @@ const Admin = () => {
       title_es: service.title_es,
       description_en: service.description_en,
       description_es: service.description_es,
-      iconName: service.iconName
+      iconName: service.iconName,
+      imageUrl: service.imageUrl || ''
     });
   };
 
@@ -529,6 +535,16 @@ const Admin = () => {
                                     <option value="Briefcase">Briefcase (Commercial, Project Management)</option>
                                 </select>
                             </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Service Image URL (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800" 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={newService.imageUrl}
+                                    onChange={(e) => setNewService({...newService, imageUrl: e.target.value})}
+                                />
+                            </div>
                             <div>
                                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (English) *</label>
                                 <textarea 
@@ -600,6 +616,16 @@ const Admin = () => {
                                                     <option value="Briefcase">Briefcase (Commercial, Project Management)</option>
                                                 </select>
                                             </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Service Image URL (Optional)</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="e.g. https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800" 
+                                                    className="w-full px-4 py-2 rounded border border-gray-300"
+                                                    value={editServiceForm.imageUrl}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, imageUrl: e.target.value})}
+                                                />
+                                            </div>
                                             <div>
                                                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (English)</label>
                                                 <textarea 
@@ -632,9 +658,17 @@ const Admin = () => {
                                     /* View details / Edit & Delete controls */
                                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                         <div className="flex items-start space-x-4">
-                                            <div className="p-3 bg-slate-100 rounded-lg text-primary">
-                                                <Wrench className="w-6 h-6" />
-                                            </div>
+                                            {s.imageUrl ? (
+                                                <img 
+                                                    src={s.imageUrl} 
+                                                    alt={s.title_en} 
+                                                    className="w-16 h-16 rounded object-cover shadow border border-gray-200 flex-shrink-0"
+                                                />
+                                            ) : (
+                                                <div className="p-3 bg-slate-100 rounded-lg text-primary flex-shrink-0">
+                                                    <Wrench className="w-6 h-6" />
+                                                </div>
+                                            )}
                                             <div>
                                                 <div className="flex items-center space-x-2">
                                                     <span className="font-bold text-slate-800 text-lg">{s.title_en}</span>
@@ -645,6 +679,9 @@ const Admin = () => {
                                                 <div className="mt-2 text-sm text-slate-500 space-y-1">
                                                     <p><strong>EN:</strong> {s.description_en}</p>
                                                     <p><strong>ES:</strong> {s.description_es}</p>
+                                                    {s.imageUrl && (
+                                                        <p className="text-xs text-slate-400 break-all"><strong>Image URL:</strong> {s.imageUrl}</p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

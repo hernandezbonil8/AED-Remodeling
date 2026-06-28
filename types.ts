@@ -25,6 +25,7 @@ export interface ServiceData {
   description_en: string;
   description_es: string;
   iconName: string;
+  imageUrl?: string;
 }
 
 export interface Appointment {
