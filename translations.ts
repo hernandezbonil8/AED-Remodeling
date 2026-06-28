@@ -110,6 +110,7 @@ export const TRANSLATIONS: Record<Language, TranslationKeys> = {
     logout: "Logout",
     tab_appointments: "Appointments",
     tab_gallery: "Gallery Manager",
+    tab_services: "Services Manager",
     new: "New",
     
     appt_requests: "Quote Requests",
@@ -259,6 +260,7 @@ export const TRANSLATIONS: Record<Language, TranslationKeys> = {
     logout: "Cerrar Sesión",
     tab_appointments: "Citas",
     tab_gallery: "Gestor de Galería",
+    tab_services: "Gestor de Servicios",
     new: "Nuevo",
     
     appt_requests: "Solicitudes de Cotización",

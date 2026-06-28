@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Project, Appointment, Language, BeforeAfterShowcase } from '../types';
-import { getInitialProjects, BEFORE_AFTER_SHOWCASE } from '../constants';
+import { Project, Appointment, Language, BeforeAfterShowcase, ServiceData } from '../types';
+import { getInitialProjects, BEFORE_AFTER_SHOWCASE, SERVICES_DATA } from '../constants';
 import { TRANSLATIONS } from '../translations';
 
 interface AppContextType {
@@ -23,6 +23,10 @@ interface AppContextType {
   updateBeforeAfterShowcase: (showcase: Partial<BeforeAfterShowcase>) => void;
   heroBackgroundImage: string;
   updateHeroBackgroundImage: (url: string) => void;
+  services: ServiceData[];
+  addService: (service: Omit<ServiceData, 'id'>) => void;
+  updateService: (service: ServiceData) => void;
+  deleteService: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -52,6 +56,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [heroBackgroundImage, setHeroBackgroundImage] = useState<string>(() => {
     const saved = localStorage.getItem('pp_hero_background_image');
     return saved || 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=2500';
+  });
+
+  const [services, setServices] = useState<ServiceData[]>(() => {
+    const saved = localStorage.getItem('pp_services');
+    return saved ? JSON.parse(saved) : SERVICES_DATA;
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
@@ -85,6 +94,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('pp_appointments', JSON.stringify(appointments));
   }, [appointments]);
+
+  useEffect(() => {
+    localStorage.setItem('pp_services', JSON.stringify(services));
+  }, [services]);
 
   const t = (key: string): string => {
     if (!language) return key;
@@ -144,6 +157,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('pp_hero_background_image', url);
   };
 
+  const addService = (serviceData: Omit<ServiceData, 'id'>) => {
+    const newService: ServiceData = {
+      ...serviceData,
+      id: 's-' + Math.random().toString(36).substr(2, 9)
+    };
+    setServices(prev => [...prev, newService]);
+  };
+
+  const updateService = (updatedService: ServiceData) => {
+    setServices(prev => prev.map(s => s.id === updatedService.id ? updatedService : s));
+  };
+
+  const deleteService = (id: string) => {
+    setServices(prev => prev.filter(s => s.id !== id));
+  };
+
   return (
     <AppContext.Provider value={{
       language,
@@ -164,7 +193,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       beforeAfterShowcase,
       updateBeforeAfterShowcase,
       heroBackgroundImage,
-      updateHeroBackgroundImage
+      updateHeroBackgroundImage,
+      services,
+      addService,
+      updateService,
+      deleteService
     }}>
       {children}
     </AppContext.Provider>

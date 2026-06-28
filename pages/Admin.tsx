@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { ProjectCategory, Project } from '../types';
-import { Plus, Trash2, Calendar, Image, LogOut, CheckCircle, Archive, FileText, Home } from 'lucide-react';
+import { Plus, Trash2, Calendar, Image, LogOut, CheckCircle, Archive, FileText, Home, Wrench, Edit } from 'lucide-react';
 import Estimator from '../components/estimator/Estimator';
 import { translateText } from '../services/geminiService';
 
@@ -18,11 +18,16 @@ const Admin = () => {
     beforeAfterShowcase, 
     updateBeforeAfterShowcase,
     heroBackgroundImage,
-    updateHeroBackgroundImage
+    updateHeroBackgroundImage,
+    services,
+    addService,
+    updateService,
+    deleteService
   } = useApp();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'appointments' | 'gallery' | 'estimator'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'gallery' | 'services' | 'estimator'>('appointments');
   const [isTranslatingProject, setIsTranslatingProject] = useState(false);
+  const [isTranslatingService, setIsTranslatingService] = useState(false);
 
   // Form State for new project
   const [newProject, setNewProject] = useState({
@@ -45,6 +50,25 @@ const Admin = () => {
   // Hero background form state
   const [heroBgInput, setHeroBgInput] = useState(heroBackgroundImage);
   const [saveHeroSuccess, setSaveHeroSuccess] = useState(false);
+
+  // Form State for new/editing service
+  const [newService, setNewService] = useState({
+    title_en: '',
+    title_es: '',
+    description_en: '',
+    description_es: '',
+    iconName: 'Hammer'
+  });
+
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [editServiceForm, setEditServiceForm] = useState({
+    id: '',
+    title_en: '',
+    title_es: '',
+    description_en: '',
+    description_es: '',
+    iconName: 'Hammer'
+  });
 
   const handleUpdateShowcase = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +115,97 @@ const Admin = () => {
       updateAppointmentStatus(id, status);
   }
 
+  const handleAddService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTranslatingService(true);
+    try {
+      let title_es = newService.title_es;
+      let description_es = newService.description_es;
+
+      if (newService.title_en && !title_es) {
+        try {
+          title_es = await translateText(newService.title_en, 'es');
+        } catch (err) {
+          console.error('Translation failed', err);
+        }
+      }
+      if (newService.description_en && !description_es) {
+        try {
+          description_es = await translateText(newService.description_en, 'es');
+        } catch (err) {
+          console.error('Translation failed', err);
+        }
+      }
+
+      addService({
+        title_en: newService.title_en,
+        title_es: title_es || newService.title_en,
+        description_en: newService.description_en,
+        description_es: description_es || newService.description_en,
+        iconName: newService.iconName
+      });
+
+      setNewService({
+        title_en: '',
+        title_es: '',
+        description_en: '',
+        description_es: '',
+        iconName: 'Hammer'
+      });
+    } finally {
+      setIsTranslatingService(false);
+    }
+  };
+
+  const handleUpdateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTranslatingService(true);
+    try {
+      let title_es = editServiceForm.title_es;
+      let description_es = editServiceForm.description_es;
+
+      if (editServiceForm.title_en && !title_es) {
+        try {
+          title_es = await translateText(editServiceForm.title_en, 'es');
+        } catch (err) {
+          console.error('Translation failed', err);
+        }
+      }
+      if (editServiceForm.description_en && !description_es) {
+        try {
+          description_es = await translateText(editServiceForm.description_en, 'es');
+        } catch (err) {
+          console.error('Translation failed', err);
+        }
+      }
+
+      updateService({
+        id: editServiceForm.id,
+        title_en: editServiceForm.title_en,
+        title_es: title_es || editServiceForm.title_en,
+        description_en: editServiceForm.description_en,
+        description_es: description_es || editServiceForm.description_en,
+        iconName: editServiceForm.iconName
+      });
+
+      setEditingServiceId(null);
+    } finally {
+      setIsTranslatingService(false);
+    }
+  };
+
+  const handleStartEditService = (service: any) => {
+    setEditingServiceId(service.id);
+    setEditServiceForm({
+      id: service.id,
+      title_en: service.title_en,
+      title_es: service.title_es,
+      description_en: service.description_en,
+      description_es: service.description_es,
+      iconName: service.iconName
+    });
+  };
+
   const sortedAppointments = [...appointments].sort((a, b) => b.submittedAt - a.submittedAt);
 
   return (
@@ -124,6 +239,12 @@ const Admin = () => {
                 className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'gallery' ? 'bg-primary text-white shadow-lg' : 'bg-white text-slate-600 hover:bg-gray-50'}`}
             >
                 <Image className="w-5 h-5 mr-2" /> {t('tab_gallery')}
+            </button>
+            <button 
+                onClick={() => setActiveTab('services')}
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'services' ? 'bg-primary text-white shadow-lg' : 'bg-white text-slate-600 hover:bg-gray-50'}`}
+            >
+                <Wrench className="w-5 h-5 mr-2" /> {t('tab_services')}
             </button>
             <button 
                 onClick={() => setActiveTab('estimator')}
@@ -355,6 +476,194 @@ const Admin = () => {
                                     <div className="text-xs font-bold text-accent uppercase">{p.category}</div>
                                     <div className="font-bold text-slate-800 truncate">{p.title}</div>
                                 </div>
+                            </div>
+                        ))}
+                     </div>
+                </div>
+            )}
+
+            {/* Services Tab */}
+            {activeTab === 'services' && (
+                <div>
+                     <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('tab_services')}</h2>
+
+                     {/* Add New Service Form */}
+                     <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+                        <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2"/> Add New Service</h3>
+                        <form onSubmit={handleAddService} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Service Title (English) *</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. Drywall Repair" 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={newService.title_en}
+                                    onChange={(e) => setNewService({...newService, title_en: e.target.value})}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Service Title (Spanish - Optional)</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Leave empty for auto-translation" 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={newService.title_es}
+                                    onChange={(e) => setNewService({...newService, title_es: e.target.value})}
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Icon Category</label>
+                                <select 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
+                                    value={newService.iconName}
+                                    onChange={(e) => setNewService({...newService, iconName: e.target.value})}
+                                >
+                                    <option value="Hammer">Hammer (Carpentry, Decking)</option>
+                                    <option value="Zap">Zap (Electrical, Lighting)</option>
+                                    <option value="Droplets">Droplets (Plumbing, Bathroom)</option>
+                                    <option value="PaintRoller">Paint Roller (Drywall, Painting)</option>
+                                    <option value="HardHat">Hard Hat (General Contracting, Remodeling)</option>
+                                    <option value="Home">Home (Siding, Roofing, General)</option>
+                                    <option value="Layers">Layers (Flooring, Tile, Masonry)</option>
+                                    <option value="Briefcase">Briefcase (Commercial, Project Management)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (English) *</label>
+                                <textarea 
+                                    placeholder="Explain the service details..." 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 h-24 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={newService.description_en}
+                                    onChange={(e) => setNewService({...newService, description_en: e.target.value})}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (Spanish - Optional)</label>
+                                <textarea 
+                                    placeholder="Leave empty for auto-translation" 
+                                    className="w-full px-4 py-2 rounded border border-gray-300 h-24 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={newService.description_es}
+                                    onChange={(e) => setNewService({...newService, description_es: e.target.value})}
+                                />
+                            </div>
+                            <button type="submit" disabled={isTranslatingService} className="md:col-span-2 bg-[#C9A84C] text-slate-900 py-3 rounded-lg font-bold hover:bg-yellow-500 disabled:bg-gray-400 shadow">
+                                {isTranslatingService ? 'Translating & Saving...' : 'Add Service'}
+                            </button>
+                        </form>
+                     </div>
+
+                     {/* Services List / Editing */}
+                     <h3 className="text-xl font-bold text-slate-800 mb-4">Existing Services</h3>
+                     <div className="space-y-6">
+                        {services.map((s) => (
+                            <div key={s.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                                {editingServiceId === s.id ? (
+                                    /* Edit Form */
+                                    <form onSubmit={handleUpdateService} className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Title (English)</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full px-4 py-2 rounded border border-gray-300"
+                                                    value={editServiceForm.title_en}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, title_en: e.target.value})}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Title (Spanish)</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Auto translate if left blank"
+                                                    className="w-full px-4 py-2 rounded border border-gray-300"
+                                                    value={editServiceForm.title_es}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, title_es: e.target.value})}
+                                                />
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Icon Category</label>
+                                                <select 
+                                                    className="w-full px-4 py-2 rounded border border-gray-300 bg-white"
+                                                    value={editServiceForm.iconName}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, iconName: e.target.value})}
+                                                >
+                                                    <option value="Hammer">Hammer (Carpentry, Decking)</option>
+                                                    <option value="Zap">Zap (Electrical, Lighting)</option>
+                                                    <option value="Droplets">Droplets (Plumbing, Bathroom)</option>
+                                                    <option value="PaintRoller">Paint Roller (Drywall, Painting)</option>
+                                                    <option value="HardHat">Hard Hat (General Contracting, Remodeling)</option>
+                                                    <option value="Home">Home (Siding, Roofing, General)</option>
+                                                    <option value="Layers">Layers (Flooring, Tile, Masonry)</option>
+                                                    <option value="Briefcase">Briefcase (Commercial, Project Management)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (English)</label>
+                                                <textarea 
+                                                    className="w-full px-4 py-2 rounded border border-gray-300 h-24"
+                                                    value={editServiceForm.description_en}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, description_en: e.target.value})}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Description (Spanish)</label>
+                                                <textarea 
+                                                    placeholder="Auto translate if left blank"
+                                                    className="w-full px-4 py-2 rounded border border-gray-300 h-24"
+                                                    value={editServiceForm.description_es}
+                                                    onChange={(e) => setEditServiceForm({...editServiceForm, description_es: e.target.value})}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-3">
+                                            <button type="submit" disabled={isTranslatingService} className="bg-green-600 text-white px-5 py-2 rounded font-bold hover:bg-green-700 disabled:bg-gray-400">
+                                                {isTranslatingService ? 'Saving...' : 'Save Changes'}
+                                            </button>
+                                            <button type="button" onClick={() => setEditingServiceId(null)} className="bg-gray-200 text-slate-700 px-5 py-2 rounded font-bold hover:bg-gray-300">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    /* View details / Edit & Delete controls */
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                                        <div className="flex items-start space-x-4">
+                                            <div className="p-3 bg-slate-100 rounded-lg text-primary">
+                                                <Wrench className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="font-bold text-slate-800 text-lg">{s.title_en}</span>
+                                                    <span className="text-gray-400">|</span>
+                                                    <span className="text-slate-600 font-medium">{s.title_es}</span>
+                                                    <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">{s.iconName}</span>
+                                                </div>
+                                                <div className="mt-2 text-sm text-slate-500 space-y-1">
+                                                    <p><strong>EN:</strong> {s.description_en}</p>
+                                                    <p><strong>ES:</strong> {s.description_es}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2 self-end md:self-start">
+                                            <button 
+                                                onClick={() => handleStartEditService(s)}
+                                                className="flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold rounded"
+                                            >
+                                                <Edit className="w-4 h-4 mr-1.5" /> Edit
+                                            </button>
+                                            <button 
+                                                onClick={() => deleteService(s.id)}
+                                                className="flex items-center px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-sm font-semibold rounded"
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                      </div>

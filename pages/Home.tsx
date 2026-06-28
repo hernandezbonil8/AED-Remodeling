@@ -1,17 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
-import { getServices } from '../constants';
 import { useApp } from '../context/AppContext';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 
 const Home = () => {
-  const { projects, t, language, beforeAfterShowcase, heroBackgroundImage } = useApp();
+  const { projects, t, language, beforeAfterShowcase, heroBackgroundImage, services } = useApp();
   // Get latest 3 projects
   const featuredProjects = projects.slice(0, 3);
-  
-  // Get localized constants
-  const services = getServices();
 
   return (
     <div className="animate-fade-in">

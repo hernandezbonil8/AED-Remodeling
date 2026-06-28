@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getServices } from '../constants';
 import { useApp } from '../context/AppContext';
 import { PaintRoller, Home, Layers, Briefcase, CheckCircle2, Hammer, Zap, Droplets, HardHat } from 'lucide-react';
 
@@ -16,8 +15,7 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const Services = () => {
-  const { t, language } = useApp();
-  const services = getServices();
+  const { t, language, services } = useApp();
 
   return (
     <div className="animate-fade-in">
