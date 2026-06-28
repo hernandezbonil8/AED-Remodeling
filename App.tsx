@@ -49,6 +49,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/" replace />;
   }
 
+  if (process.env.NODE_ENV === 'development') {
+    console.table({
+      isAuthReady,
+      isAuthenticated,
+      widgetLoaded: !!window.netlifyIdentity,
+      authError,
+    });
+  }
+
   return <>{children}</>;
 };
 
