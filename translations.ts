@@ -20,9 +20,9 @@ export const TRANSLATIONS: Record<Language, TranslationKeys> = {
     footer_admin: "Admin Area",
 
     // Home
-    hero_title_1: "Bring Your Vision to Life with",
+    hero_title_1: "Transforming Spaces with",
     hero_title_highlight: "AED Remodeling LLC",
-    hero_subtitle: "Professional, fully licensed, and insured general contractors tailored to your style and budget. Quality finish, every time.",
+    hero_subtitle: "Home remodeling, premium kitchen and bath renovations, and expert craftsmanship tailored to your unique style and budget. Quality finish, every time.",
     hero_cta_quote: "Request a Quote",
     hero_cta_work: "View Our Work",
     
@@ -169,9 +169,9 @@ export const TRANSLATIONS: Record<Language, TranslationKeys> = {
     footer_admin: "Área de Admin",
 
     // Home
-    hero_title_1: "Haga Realidad Su Visión con",
+    hero_title_1: "Transformando Espacios con",
     hero_title_highlight: "AED Remodeling LLC",
-    hero_subtitle: "Contratistas generales profesionales, con licencia y seguro completos, adaptados a su estilo y presupuesto. Acabado de calidad, siempre.",
+    hero_subtitle: "Remodelación de hogares, renovaciones premium de cocinas y baños, y artesanía experta adaptada a su estilo único y presupuesto. Acabados de calidad, siempre.",
     hero_cta_quote: "Solicitar Cotización",
     hero_cta_work: "Ver Nuestro Trabajo",
     

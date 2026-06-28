@@ -1,5 +1,12 @@
 export type Language = 'en' | 'es';
 
+export interface BeforeAfterShowcase {
+  beforeImage: string;
+  afterImage: string;
+  altText_en: string;
+  altText_es: string;
+}
+
 export interface Project {
   id: string;
   title: string;

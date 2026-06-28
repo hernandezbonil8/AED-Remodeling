@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { AEDLogo } from '../components/AEDLogo';
 
 const Login = () => {
   const { isAuthenticated, isAuthReady, authError, t } = useApp();
@@ -47,8 +47,8 @@ const Login = () => {
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-slate-100 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8" />
+          <div className="flex justify-center mb-6">
+            <AEDLogo size="lg" variant="light" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">
             {t('admin_access') || 'Admin Access'}

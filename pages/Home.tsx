@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
-import { getServices, BEFORE_AFTER_SHOWCASE } from '../constants';
+import { getServices } from '../constants';
 import { useApp } from '../context/AppContext';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 
 const Home = () => {
-  const { projects, t, language } = useApp();
+  const { projects, t, language, beforeAfterShowcase, heroBackgroundImage } = useApp();
   // Get latest 3 projects
   const featuredProjects = projects.slice(0, 3);
   
@@ -20,7 +20,7 @@ const Home = () => {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=2500" 
+            src={heroBackgroundImage} 
             alt="Remodeling background" 
             className="w-full h-full object-cover"
           />
@@ -147,9 +147,9 @@ const Home = () => {
             <p className="text-lg text-slate-500 max-w-2xl mx-auto">{t('transformation_subtitle')}</p>
           </div>
           <BeforeAfterSlider 
-            beforeImage={BEFORE_AFTER_SHOWCASE.beforeImage} 
-            afterImage={BEFORE_AFTER_SHOWCASE.afterImage} 
-            altText={language === 'es' ? BEFORE_AFTER_SHOWCASE.altText_es : BEFORE_AFTER_SHOWCASE.altText_en} 
+            beforeImage={beforeAfterShowcase.beforeImage} 
+            afterImage={beforeAfterShowcase.afterImage} 
+            altText={language === 'es' ? beforeAfterShowcase.altText_es : beforeAfterShowcase.altText_en} 
             beforeLabel={t('before')} 
             afterLabel={t('after')} 
           />

@@ -21,7 +21,7 @@ export const generatePDF = (data: EstimateData, lang: Language = 'en') => {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('123 Painter Lane, Cityville, ST 12345', 15, 28);
-  doc.text('Phone: (555) 123-4567 | Email: aedremodeling@gmail.com', 15, 34);
+  doc.text('Phone: (571) 445-1287 | Email: aedremodeling@gmail.com', 15, 34);
 
   // --- Estimate Info ---
   doc.setTextColor(0, 0, 0);

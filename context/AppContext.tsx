@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Project, Appointment, Language } from '../types';
-import { getInitialProjects } from '../constants';
+import { Project, Appointment, Language, BeforeAfterShowcase } from '../types';
+import { getInitialProjects, BEFORE_AFTER_SHOWCASE } from '../constants';
 import { TRANSLATIONS } from '../translations';
 
 interface AppContextType {
@@ -19,6 +19,10 @@ interface AppContextType {
   updateAppointmentStatus: (id: string, status: Appointment['status']) => void;
   isAuthReady: boolean;
   authError: string | null;
+  beforeAfterShowcase: BeforeAfterShowcase;
+  updateBeforeAfterShowcase: (showcase: Partial<BeforeAfterShowcase>) => void;
+  heroBackgroundImage: string;
+  updateHeroBackgroundImage: (url: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -38,6 +42,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [appointments, setAppointments] = useState<Appointment[]>(() => {
     const saved = localStorage.getItem('pp_appointments');
     return saved ? JSON.parse(saved) : [];
+  });
+
+  const [beforeAfterShowcase, setBeforeAfterShowcase] = useState<BeforeAfterShowcase>(() => {
+    const saved = localStorage.getItem('pp_before_after_showcase');
+    return saved ? JSON.parse(saved) : BEFORE_AFTER_SHOWCASE;
+  });
+
+  const [heroBackgroundImage, setHeroBackgroundImage] = useState<string>(() => {
+    const saved = localStorage.getItem('pp_hero_background_image');
+    return saved || 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=2500';
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
@@ -117,6 +131,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
   };
 
+  const updateBeforeAfterShowcase = (showcase: Partial<BeforeAfterShowcase>) => {
+    setBeforeAfterShowcase(prev => {
+      const updated = { ...prev, ...showcase };
+      localStorage.setItem('pp_before_after_showcase', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const updateHeroBackgroundImage = (url: string) => {
+    setHeroBackgroundImage(url);
+    localStorage.setItem('pp_hero_background_image', url);
+  };
+
   return (
     <AppContext.Provider value={{
       language,
@@ -133,7 +160,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addAppointment,
       updateAppointmentStatus,
       isAuthReady,
-      authError
+      authError,
+      beforeAfterShowcase,
+      updateBeforeAfterShowcase,
+      heroBackgroundImage,
+      updateHeroBackgroundImage
     }}>
       {children}
     </AppContext.Provider>

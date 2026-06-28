@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone, Mail, Instagram, Facebook, ArrowLeft, Home } from 'lucide-react';
+import { Menu, X, Phone, Mail, Instagram, Facebook, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import AEDLogo from './AEDLogo';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,14 +34,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <ArrowLeft className="w-6 h-6" />
               </button>
-              <Link to="/" className="flex items-center space-x-2 group" onClick={closeMenu}>
-                <div className="p-2 bg-primary rounded-lg shadow-lg group-hover:bg-blue-800 transition-all duration-300">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold text-gray-900 tracking-tight leading-none group-hover:text-primary transition-colors">AED</span>
-                  <span className="text-sm text-gray-500 uppercase tracking-widest leading-none">Remodeling LLC</span>
-                </div>
+              <Link to="/" className="flex items-center group" onClick={closeMenu}>
+                <AEDLogo size="sm" variant="light" className="transition-transform duration-300 group-hover:scale-105" />
               </Link>
             </div>
 
@@ -87,9 +82,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Home className="w-5 h-5 text-accent" />
-                <span className="text-lg font-bold">AED Remodeling LLC</span>
+              <div className="flex items-center mb-4">
+                <AEDLogo size="sm" variant="dark" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 {t('footer_desc')}
@@ -99,8 +93,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div>
               <h3 className="text-lg font-semibold mb-4 text-slate-200">{t('footer_contact')}</h3>
               <div className="space-y-3">
-                <a href="tel:+15551234567" className="flex items-center text-slate-400 hover:text-white transition-colors">
-                  <Phone className="w-4 h-4 mr-2" /> (555) 123-4567
+                <a href="tel:+15714451287" className="flex items-center text-slate-400 hover:text-white transition-colors">
+                  <Phone className="w-4 h-4 mr-2" /> (571) 445-1287
                 </a>
                 <a href="mailto:aedremodeling@gmail.com" className="flex items-center text-slate-400 hover:text-white transition-colors">
                   <Mail className="w-4 h-4 mr-2" /> aedremodeling@gmail.com

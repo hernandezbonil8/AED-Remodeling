@@ -95,7 +95,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-semibold text-slate-800">{t('info_phone')}</h4>
                     <p className="text-slate-600 mb-1">{t('info_phone_desc')}</p>
-                    <a href="tel:+15551234567" className="text-primary font-bold hover:underline">(555) 123-4567</a>
+                    <a href="tel:+15714451287" className="text-primary font-bold hover:underline">(571) 445-1287</a>
                   </div>
                 </div>
 
@@ -106,7 +106,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-semibold text-slate-800">{t('info_text')}</h4>
                     <p className="text-slate-600 mb-1">{t('info_text_desc')}</p>
-                    <a href="sms:+15551234567" className="text-primary font-bold hover:underline">(555) 123-4567</a>
+                    <a href="sms:+15714451287" className="text-primary font-bold hover:underline">(571) 445-1287</a>
                   </div>
                 </div>
 
@@ -200,7 +200,7 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                        placeholder="(555) 123-4567"
+                        placeholder="(571) 445-1287"
                       />
                     </div>
                     <div>

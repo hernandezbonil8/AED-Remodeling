@@ -7,7 +7,19 @@ import Estimator from '../components/estimator/Estimator';
 import { translateText } from '../services/geminiService';
 
 const Admin = () => {
-  const { logout, projects, appointments, addProject, deleteProject, updateAppointmentStatus, t } = useApp();
+  const { 
+    logout, 
+    projects, 
+    appointments, 
+    addProject, 
+    deleteProject, 
+    updateAppointmentStatus, 
+    t, 
+    beforeAfterShowcase, 
+    updateBeforeAfterShowcase,
+    heroBackgroundImage,
+    updateHeroBackgroundImage
+  } = useApp();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'appointments' | 'gallery' | 'estimator'>('appointments');
   const [isTranslatingProject, setIsTranslatingProject] = useState(false);
@@ -20,6 +32,33 @@ const Admin = () => {
     imageUrl: '',
     videoUrl: '',
   });
+
+  // Showcase image form state
+  const [showcaseForm, setShowcaseForm] = useState({
+    beforeImage: beforeAfterShowcase.beforeImage,
+    afterImage: beforeAfterShowcase.afterImage,
+    altText_en: beforeAfterShowcase.altText_en,
+    altText_es: beforeAfterShowcase.altText_es,
+  });
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Hero background form state
+  const [heroBgInput, setHeroBgInput] = useState(heroBackgroundImage);
+  const [saveHeroSuccess, setSaveHeroSuccess] = useState(false);
+
+  const handleUpdateShowcase = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateBeforeAfterShowcase(showcaseForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 4000);
+  };
+
+  const handleUpdateHeroBg = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateHeroBackgroundImage(heroBgInput);
+    setSaveHeroSuccess(true);
+    setTimeout(() => setSaveHeroSuccess(false), 4000);
+  };
 
   const handleLogout = () => {
     logout();
@@ -159,6 +198,99 @@ const Admin = () => {
             {activeTab === 'gallery' && (
                 <div>
                      <h2 className="text-2xl font-bold text-slate-800 mb-6">{t('manage_portfolio')}</h2>
+
+                     {/* Hero Banner Background Configuration */}
+                     <div className="bg-white p-6 rounded-lg mb-8 border-2 border-accent/30 shadow-sm">
+                        <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center">
+                          <Image className="w-5 h-5 mr-2 text-primary" />
+                          Edit Home Hero Background Image
+                        </h3>
+                        <form onSubmit={handleUpdateHeroBg} className="space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Hero Background Image URL</label>
+                              <div className="flex flex-col sm:flex-row gap-3">
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter image URL (e.g. Unsplash, Imgur or direct link)" 
+                                    className="flex-grow px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                    value={heroBgInput}
+                                    onChange={(e) => setHeroBgInput(e.target.value)}
+                                    required
+                                />
+                                <button type="submit" className="bg-[#C9A84C] text-slate-900 px-6 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-colors shadow whitespace-nowrap">
+                                    Update Background
+                                </button>
+                              </div>
+                            </div>
+                        </form>
+                        {saveHeroSuccess && (
+                          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700 font-semibold flex items-center animate-fade-in">
+                            <CheckCircle className="w-5 h-5 mr-2 text-green-600" /> Hero background image updated successfully! View the home page to see it live.
+                          </div>
+                        )}
+                     </div>
+
+                     {/* Before & After Slider Configuration */}
+                     <div className="bg-white p-6 rounded-lg mb-8 border-2 border-accent/30 shadow-sm">
+                        <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center">
+                          <Image className="w-5 h-5 mr-2 text-primary" />
+                          Edit Before & After Showcase Slider
+                        </h3>
+                        <form onSubmit={handleUpdateShowcase} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Before Image URL</label>
+                              <input 
+                                  type="text" 
+                                  placeholder="Before Image URL (e.g. Unsplash, Imgur or direct link)" 
+                                  className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                  value={showcaseForm.beforeImage}
+                                  onChange={(e) => setShowcaseForm({...showcaseForm, beforeImage: e.target.value})}
+                                  required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">After Image URL</label>
+                              <input 
+                                  type="text" 
+                                  placeholder="After Image URL (e.g. Unsplash, Imgur or direct link)" 
+                                  className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                  value={showcaseForm.afterImage}
+                                  onChange={(e) => setShowcaseForm({...showcaseForm, afterImage: e.target.value})}
+                                  required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Alt Text (English)</label>
+                              <input 
+                                  type="text" 
+                                  placeholder="Alt Text (English)" 
+                                  className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                  value={showcaseForm.altText_en}
+                                  onChange={(e) => setShowcaseForm({...showcaseForm, altText_en: e.target.value})}
+                                  required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Alt Text (Spanish)</label>
+                              <input 
+                                  type="text" 
+                                  placeholder="Alt Text (Spanish)" 
+                                  className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none"
+                                  value={showcaseForm.altText_es}
+                                  onChange={(e) => setShowcaseForm({...showcaseForm, altText_es: e.target.value})}
+                                  required
+                              />
+                            </div>
+                            <button type="submit" className="md:col-span-2 bg-[#C9A84C] text-slate-900 py-3 rounded-lg font-bold hover:bg-yellow-500 transition-colors shadow">
+                                Save Showcase Slider Images
+                            </button>
+                        </form>
+                        {saveSuccess && (
+                          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700 font-semibold flex items-center animate-fade-in">
+                            <CheckCircle className="w-5 h-5 mr-2 text-green-600" /> Showcase slider updated successfully! View the home page to see it live.
+                          </div>
+                        )}
+                     </div>
                      
                      {/* Add New Project Form */}
                      <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
