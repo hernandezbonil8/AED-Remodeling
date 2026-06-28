@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Lock } from 'lucide-react';
 const Login = () => {
   const { isAuthenticated, isAuthReady, t } = useApp();
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthReady && isAuthenticated) {
@@ -17,6 +18,8 @@ const Login = () => {
     e.preventDefault();
     if (window.netlifyIdentity) {
       window.netlifyIdentity.open('login');
+    } else {
+      setError('Auth service unavailable. Please refresh and try again.');
     }
   };
 
@@ -24,6 +27,8 @@ const Login = () => {
     e.preventDefault();
     if (window.netlifyIdentity) {
       window.netlifyIdentity.open('signup');
+    } else {
+      setError('Auth service unavailable. Please refresh and try again.');
     }
   };
 

@@ -10,7 +10,7 @@ interface AppContextType {
   projects: Project[];
   appointments: Appointment[];
   isAuthenticated: boolean;
-  user: any | null; // Changed from Firebase User to any to accommodate Netlify User
+  user: any | null;
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
   addProject: (project: Omit<Project, 'id' | 'dateAdded'>) => void;
@@ -46,13 +46,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check Netlify Identity status
+    if (!window.netlifyIdentity) {
+      setIsAuthReady(true);
+      return;
+    }
+
+    let authResolved = false;
+
     const checkAuth = (netlifyUser: any) => {
       try {
         if (netlifyUser) {
-          // Read roles from app_metadata.roles
           const roles = netlifyUser.app_metadata?.roles || [];
-          // Check for lowercase 'admin'
           const isAdmin = roles.some((role: string) => role.toLowerCase() === 'admin');
           
           if (isAdmin) {
@@ -78,46 +82,51 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     };
 
+    const resolveOnce = (netlifyUser: any) => {
+      if (authResolved) return;
+      authResolved = true;
+      checkAuth(netlifyUser);
+    };
+
     try {
-      if (window.netlifyIdentity) {
-        // Register event listeners BEFORE initializing
-        window.netlifyIdentity.on('init', (user: any) => checkAuth(user));
-        window.netlifyIdentity.on('login', (user: any) => {
-          checkAuth(user);
-          window.netlifyIdentity.close();
-        });
-        window.netlifyIdentity.on('logout', () => checkAuth(null));
-        window.netlifyIdentity.on('error', (err: any) => {
-          console.error('Netlify Identity error event:', err);
-          setAuthError(err?.message || 'Netlify Identity SDK Error');
-          setIsAuthReady(true);
-        });
-
-        // Initialize netlifyIdentity with exact API endpoint
-        window.netlifyIdentity.init({
-          APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
-        });
-        
-        // If already initialized and has a currentUser, run checkAuth
-        if (window.netlifyIdentity.currentUser()) {
-          checkAuth(window.netlifyIdentity.currentUser());
-        }
-
-        // Safety fallback: drop the loading screen after 2.5 seconds if Netlify widget doesn't respond
-        const safetyTimeout = setTimeout(() => {
-          setIsAuthReady((prev) => {
-            if (!prev) {
-              console.warn('Netlify Identity load safety fallback triggered');
-              return true;
-            }
-            return prev;
-          });
-        }, 2500);
-
-        return () => clearTimeout(safetyTimeout);
-      } else {
+      // Register event listeners BEFORE initializing
+      window.netlifyIdentity.on('init', (u: any) => resolveOnce(u));
+      window.netlifyIdentity.on('login', (u: any) => {
+        authResolved = true;
+        checkAuth(u);
+        window.netlifyIdentity.close();
+      });
+      window.netlifyIdentity.on('logout', () => {
+        setUser(null);
+        setIsAuthenticated(false);
+      });
+      window.netlifyIdentity.on('error', (err: any) => {
+        console.error('Netlify Identity error event:', err);
+        setAuthError(err?.message || 'Netlify Identity SDK Error');
         setIsAuthReady(true);
+      });
+
+      // Initialize netlifyIdentity with exact API endpoint
+      window.netlifyIdentity.init({
+        APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
+      });
+      
+      // If already initialized and has a currentUser, run checkAuth
+      const existingUser = window.netlifyIdentity.currentUser?.();
+      if (existingUser) {
+        resolveOnce(existingUser);
       }
+
+      // Safety fallback: drop the loading screen after 6 seconds if Netlify widget doesn't respond
+      const safetyTimeout = setTimeout(() => {
+        if (!authResolved) {
+          console.warn('Netlify Identity load safety fallback triggered');
+          authResolved = true;
+          setIsAuthReady(true);
+        }
+      }, 6000);
+
+      return () => clearTimeout(safetyTimeout);
     } catch (err: any) {
       console.error('Netlify Identity initialization error:', err);
       setAuthError(err?.message || 'Netlify Identity initialization error');

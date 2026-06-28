@@ -20,17 +20,13 @@ import NotFound from './pages/NotFound';
 import { Home as HomeIcon } from 'lucide-react';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthReady, isAuthenticated, user, authError } = useApp();
-
-  console.log("Is Auth Ready?", isAuthReady);
-  console.log("Current User Object:", user);
-  console.log("Is Admin Verified?", isAuthenticated);
+  const { isAuthReady, isAuthenticated, authError } = useApp();
 
   if (authError) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-red-950 border border-red-500 rounded-xl p-6 text-red-200 shadow-2xl">
-          <h2 className="text-xl font-bold mb-2 text-red-400">Auth Initialization Error</h2>
+          <h2 className="text-xl font-bold mb-2 text-red-400">Auth Error</h2>
           <p className="font-mono text-sm bg-red-900/40 p-3 rounded border border-red-800/60 overflow-x-auto">
             {authError}
           </p>
@@ -41,13 +37,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isAuthReady) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <div className="ml-4 text-slate-600 font-medium">Loading Auth...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <span className="text-slate-600 font-medium">Verifying access...</span>
       </div>
     );
   }
 
+  // isAuthReady is true here — safe to evaluate isAuthenticated
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
