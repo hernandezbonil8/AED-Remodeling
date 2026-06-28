@@ -3,3 +3,9 @@
   to = "/index.html"
   status = 200
   force = false
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self' https://*.netlify.com https://*.googleapis.com https://*.firebaseio.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://*.netlify.com https://cdn.tailwindcss.com https://esm.sh https://*.esm.sh; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.com https://esm.sh https://*.esm.sh; connect-src 'self' https://*.netlify.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseio.com https://esm.sh https://*.esm.sh; img-src 'self' data: https:;"
+
