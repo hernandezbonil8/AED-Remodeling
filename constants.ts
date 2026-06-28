@@ -1,4 +1,4 @@
-import { Project, ProjectCategory, ServiceData, Language } from './types';
+import { Project, ProjectCategory, ServiceData } from './types';
 
 // Projects Data
 const PROJECTS: Project[] = [

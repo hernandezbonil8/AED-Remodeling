@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Paintbrush, Menu, X, Phone, Mail, Instagram, Facebook, ArrowLeft, Home } from 'lucide-react';
+import { Menu, X, Phone, Mail, Instagram, Facebook, ArrowLeft, Home } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface LayoutProps {

@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+
+// Declare netlifyIdentity for TypeScript
+declare global {
+  interface Window {
+    netlifyIdentity: any;
+  }
+}
+
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Gallery from './pages/Gallery';
@@ -59,6 +67,20 @@ const LanguageSelector = () => {
 
 const AppContent = () => {
   const { language } = useApp();
+
+  useEffect(() => {
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on('init', (user: any) => {
+        if (!user) {
+          window.netlifyIdentity.on('login', () => {
+            document.location.href = '#/secure-portal-99x/dashboard';
+          });
+        }
+      });
+      // Initialize netlifyIdentity
+      window.netlifyIdentity.init();
+    }
+  }, []);
 
   if (!language) {
     return <LanguageSelector />;
