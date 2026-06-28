@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 
 const Login = () => {
   const [error, setError] = useState('');
-  const { login, t } = useApp();
+  const { isAuthenticated, isAuthReady, t } = useApp();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthReady && isAuthenticated) {
+      navigate('/secure-portal-99x/dashboard');
+    }
+  }, [isAuthenticated, isAuthReady, navigate]);
 
   const handleNetlifyLogin = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -21,6 +27,14 @@ const Login = () => {
       window.netlifyIdentity.open('signup');
     }
   };
+
+  if (!isAuthReady) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">

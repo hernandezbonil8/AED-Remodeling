@@ -2,8 +2,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Project, Appointment, Language } from '../types';
 import { getInitialProjects } from '../constants';
 import { TRANSLATIONS } from '../translations';
-import { auth, loginWithGoogle, logoutFromFirebase, db } from '../services/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+// Import db if needed, but remove Firebase Auth related imports if possible.
+// Actually, let's keep db since they might use it for something else.
+// import { auth, loginWithGoogle, logoutFromFirebase, db } from '../services/firebase';
+import { db } from '../services/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppContextType {
@@ -13,13 +15,14 @@ interface AppContextType {
   projects: Project[];
   appointments: Appointment[];
   isAuthenticated: boolean;
-  user: User | null;
+  user: any | null; // Changed from Firebase User to any to accommodate Netlify User
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
   addProject: (project: Omit<Project, 'id' | 'dateAdded'>) => void;
   deleteProject: (id: string) => void;
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'submittedAt'>) => void;
   updateAppointmentStatus: (id: string, status: Appointment['status']) => void;
+  isAuthReady: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -33,8 +36,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [projects, setProjects] = useState<Project[]>(() => {
     const saved = localStorage.getItem('pp_projects');
     if (saved) return JSON.parse(saved);
-    // If we have a language selected initially, load those projects, otherwise load EN default
-    // We will actually update projects when language is selected if no saved data exists
     return []; 
   });
 
@@ -44,53 +45,57 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      let isUserAdmin = false;
-      if (currentUser) {
-        try {
-          const idTokenResult = await currentUser.getIdTokenResult();
-          isUserAdmin = 
-            idTokenResult.claims?.role === 'admin' || 
-            (Array.isArray(idTokenResult.claims?.roles) && idTokenResult.claims.roles.includes('admin')) || 
-            currentUser.email === 'hernandezbonilla90@gmail.com';
-            
-          if (isUserAdmin) {
-            await addDoc(collection(db, 'accessLogs'), {
-              uid: currentUser.uid,
-              email: currentUser.email,
-              timestamp: serverTimestamp(),
-              action: 'login'
-            });
-          } else {
-            console.warn('Unauthorized user attempted to log in.');
-            await auth.signOut();
-            currentUser = null;
+    // Check Netlify Identity status
+    const checkAuth = (netlifyUser: any) => {
+      if (netlifyUser) {
+        // Read roles from app_metadata.roles
+        const roles = netlifyUser.app_metadata?.roles || [];
+        // Check for lowercase 'admin'
+        const isAdmin = roles.some((role: string) => role.toLowerCase() === 'admin');
+        
+        if (isAdmin) {
+          setUser(netlifyUser);
+          setIsAuthenticated(true);
+        } else {
+          console.warn('Unauthorized user attempted to log in.');
+          if (window.netlifyIdentity) {
+            window.netlifyIdentity.logout();
           }
-        } catch (e) {
-          console.error('Failed to verify admin status or write access log', e);
-          await auth.signOut();
-          currentUser = null;
-          isUserAdmin = false;
+          setUser(null);
+          setIsAuthenticated(false);
         }
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
       }
-
-      setUser(currentUser);
-      setIsAuthenticated(!!currentUser && isUserAdmin);
       setIsAuthReady(true);
-    });
-    return () => unsubscribe();
+    };
+
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on('init', (user: any) => checkAuth(user));
+      window.netlifyIdentity.on('login', (user: any) => {
+        checkAuth(user);
+        window.netlifyIdentity.close();
+      });
+      window.netlifyIdentity.on('logout', () => checkAuth(null));
+      
+      // If already initialized
+      if (window.netlifyIdentity.currentUser()) {
+        checkAuth(window.netlifyIdentity.currentUser());
+      }
+    } else {
+      setIsAuthReady(true);
+    }
   }, []);
 
   const setLanguage = (lang: Language | null) => {
     setLanguageState(lang);
     if (lang) {
         localStorage.setItem('pp_language', lang);
-        
-        // If no projects in local storage (or empty), initialize with selected language data
         const savedProjects = localStorage.getItem('pp_projects');
         if (!savedProjects || JSON.parse(savedProjects).length === 0) {
             setProjects(getInitialProjects());
@@ -116,22 +121,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = async () => {
-    try {
-      await loginWithGoogle();
-      return true;
-    } catch (error: any) {
-      if (error?.code === 'auth/popup-closed-by-user') {
-        return false;
-      }
-      throw error;
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.open('login');
     }
+    return true;
   };
 
   const logout = async () => {
-    try {
-      await logoutFromFirebase();
-    } catch (error) {
-      console.error(error);
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.logout();
     }
   };
 

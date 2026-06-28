@@ -70,13 +70,6 @@ const AppContent = () => {
 
   useEffect(() => {
     if (window.netlifyIdentity) {
-      window.netlifyIdentity.on('init', (user: any) => {
-        if (!user) {
-          window.netlifyIdentity.on('login', () => {
-            document.location.href = '#/secure-portal-99x/dashboard';
-          });
-        }
-      });
       // Initialize netlifyIdentity
       window.netlifyIdentity.init();
 
