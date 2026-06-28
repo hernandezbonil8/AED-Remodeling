@@ -20,11 +20,24 @@ import NotFound from './pages/NotFound';
 import { Home as HomeIcon } from 'lucide-react';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthReady, isAuthenticated, user } = useApp();
+  const { isAuthReady, isAuthenticated, user, authError } = useApp();
 
   console.log("Is Auth Ready?", isAuthReady);
   console.log("Current User Object:", user);
   console.log("Is Admin Verified?", isAuthenticated);
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-red-950 border border-red-500 rounded-xl p-6 text-red-200 shadow-2xl">
+          <h2 className="text-xl font-bold mb-2 text-red-400">Auth Initialization Error</h2>
+          <p className="font-mono text-sm bg-red-900/40 p-3 rounded border border-red-800/60 overflow-x-auto">
+            {authError}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthReady) {
     return (

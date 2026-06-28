@@ -18,6 +18,7 @@ interface AppContextType {
   addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'submittedAt'>) => void;
   updateAppointmentStatus: (id: string, status: Appointment['status']) => void;
   isAuthReady: boolean;
+  authError: string | null;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -42,71 +43,84 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<any | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check Netlify Identity status
     const checkAuth = (netlifyUser: any) => {
-      if (netlifyUser) {
-        // Read roles from app_metadata.roles
-        const roles = netlifyUser.app_metadata?.roles || [];
-        // Check for lowercase 'admin'
-        const isAdmin = roles.some((role: string) => role.toLowerCase() === 'admin');
-        
-        if (isAdmin) {
-          setUser(netlifyUser);
-          setIsAuthenticated(true);
-        } else {
-          console.warn('Unauthorized user attempted to log in.');
-          if (window.netlifyIdentity) {
-            window.netlifyIdentity.logout();
+      try {
+        if (netlifyUser) {
+          // Read roles from app_metadata.roles
+          const roles = netlifyUser.app_metadata?.roles || [];
+          // Check for lowercase 'admin'
+          const isAdmin = roles.some((role: string) => role.toLowerCase() === 'admin');
+          
+          if (isAdmin) {
+            setUser(netlifyUser);
+            setIsAuthenticated(true);
+          } else {
+            console.warn('Unauthorized user attempted to log in.');
+            if (window.netlifyIdentity) {
+              window.netlifyIdentity.logout();
+            }
+            setUser(null);
+            setIsAuthenticated(false);
           }
+        } else {
           setUser(null);
           setIsAuthenticated(false);
         }
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
+      } catch (err: any) {
+        console.error('Error parsing token or role:', err);
+        setAuthError(err?.message || 'Token parsing error');
+      } finally {
+        setIsAuthReady(true);
       }
-      setIsAuthReady(true);
     };
 
-    if (window.netlifyIdentity) {
-      // Register event listeners BEFORE initializing
-      window.netlifyIdentity.on('init', (user: any) => checkAuth(user));
-      window.netlifyIdentity.on('login', (user: any) => {
-        checkAuth(user);
-        window.netlifyIdentity.close();
-      });
-      window.netlifyIdentity.on('logout', () => checkAuth(null));
-      window.netlifyIdentity.on('error', (err: any) => {
-        console.error('Netlify Identity error:', err);
-        setIsAuthReady(true);
-      });
-
-      // Initialize netlifyIdentity with exact API endpoint
-      window.netlifyIdentity.init({
-        APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
-      });
-      
-      // If already initialized and has a currentUser, run checkAuth
-      if (window.netlifyIdentity.currentUser()) {
-        checkAuth(window.netlifyIdentity.currentUser());
-      }
-
-      // Safety fallback: drop the loading screen after 2.5 seconds if Netlify widget doesn't respond
-      const safetyTimeout = setTimeout(() => {
-        setIsAuthReady((prev) => {
-          if (!prev) {
-            console.warn('Netlify Identity load safety fallback triggered');
-            return true;
-          }
-          return prev;
+    try {
+      if (window.netlifyIdentity) {
+        // Register event listeners BEFORE initializing
+        window.netlifyIdentity.on('init', (user: any) => checkAuth(user));
+        window.netlifyIdentity.on('login', (user: any) => {
+          checkAuth(user);
+          window.netlifyIdentity.close();
         });
-      }, 2500);
+        window.netlifyIdentity.on('logout', () => checkAuth(null));
+        window.netlifyIdentity.on('error', (err: any) => {
+          console.error('Netlify Identity error event:', err);
+          setAuthError(err?.message || 'Netlify Identity SDK Error');
+          setIsAuthReady(true);
+        });
 
-      return () => clearTimeout(safetyTimeout);
-    } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+        // Initialize netlifyIdentity with exact API endpoint
+        window.netlifyIdentity.init({
+          APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
+        });
+        
+        // If already initialized and has a currentUser, run checkAuth
+        if (window.netlifyIdentity.currentUser()) {
+          checkAuth(window.netlifyIdentity.currentUser());
+        }
+
+        // Safety fallback: drop the loading screen after 2.5 seconds if Netlify widget doesn't respond
+        const safetyTimeout = setTimeout(() => {
+          setIsAuthReady((prev) => {
+            if (!prev) {
+              console.warn('Netlify Identity load safety fallback triggered');
+              return true;
+            }
+            return prev;
+          });
+        }, 2500);
+
+        return () => clearTimeout(safetyTimeout);
+      } else {
+        setIsAuthReady(true);
+      }
+    } catch (err: any) {
+      console.error('Netlify Identity initialization error:', err);
+      setAuthError(err?.message || 'Netlify Identity initialization error');
       setIsAuthReady(true);
     }
   }, []);
@@ -193,9 +207,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addProject,
       deleteProject,
       addAppointment,
-      updateAppointmentStatus
+      updateAppointmentStatus,
+      isAuthReady,
+      authError
     }}>
-      {isAuthReady ? children : <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">Loading...</div>}
+      {children}
     </AppContext.Provider>
   );
 };
