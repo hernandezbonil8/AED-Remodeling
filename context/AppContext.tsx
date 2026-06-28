@@ -71,17 +71,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     if (window.netlifyIdentity) {
+      // Register event listeners BEFORE initializing
       window.netlifyIdentity.on('init', (user: any) => checkAuth(user));
       window.netlifyIdentity.on('login', (user: any) => {
         checkAuth(user);
         window.netlifyIdentity.close();
       });
       window.netlifyIdentity.on('logout', () => checkAuth(null));
+      window.netlifyIdentity.on('error', (err: any) => {
+        console.error('Netlify Identity error:', err);
+        setIsAuthReady(true);
+      });
+
+      // Initialize netlifyIdentity with exact API endpoint
+      window.netlifyIdentity.init({
+        APIUrl: 'https://aedremodelingllc.netlify.app/.netlify/identity'
+      });
       
-      // If already initialized
+      // If already initialized and has a currentUser, run checkAuth
       if (window.netlifyIdentity.currentUser()) {
         checkAuth(window.netlifyIdentity.currentUser());
       }
+
+      // Safety fallback: drop the loading screen after 2.5 seconds if Netlify widget doesn't respond
+      const safetyTimeout = setTimeout(() => {
+        setIsAuthReady((prev) => {
+          if (!prev) {
+            console.warn('Netlify Identity load safety fallback triggered');
+            return true;
+          }
+          return prev;
+        });
+      }, 2500);
+
+      return () => clearTimeout(safetyTimeout);
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsAuthReady(true);
