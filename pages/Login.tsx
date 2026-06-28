@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 
 const Login = () => {
-  const [error, setError] = useState('');
   const { isAuthenticated, isAuthReady, t } = useApp();
   const navigate = useNavigate();
 

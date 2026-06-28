@@ -2,11 +2,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Project, Appointment, Language } from '../types';
 import { getInitialProjects } from '../constants';
 import { TRANSLATIONS } from '../translations';
-// Import db if needed, but remove Firebase Auth related imports if possible.
-// Actually, let's keep db since they might use it for something else.
-// import { auth, loginWithGoogle, logoutFromFirebase, db } from '../services/firebase';
-import { db } from '../services/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppContextType {
   language: Language | null;
@@ -88,6 +83,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         checkAuth(window.netlifyIdentity.currentUser());
       }
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsAuthReady(true);
     }
   }, []);

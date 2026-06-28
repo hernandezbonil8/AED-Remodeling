@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { ProjectCategory, Project } from '../types';
@@ -7,7 +7,7 @@ import Estimator from '../components/estimator/Estimator';
 import { translateText } from '../services/geminiService';
 
 const Admin = () => {
-  const { isAuthenticated, isAuthReady, logout, projects, appointments, addProject, deleteProject, updateAppointmentStatus, t } = useApp();
+  const { logout, projects, appointments, addProject, deleteProject, updateAppointmentStatus, t } = useApp();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'appointments' | 'gallery' | 'estimator'>('appointments');
   const [isTranslatingProject, setIsTranslatingProject] = useState(false);
@@ -20,23 +20,6 @@ const Admin = () => {
     imageUrl: '',
     videoUrl: '',
   });
-
-  useEffect(() => {
-    if (isAuthReady && !isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, isAuthReady, navigate]);
-
-  if (!isAuthReady) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // If not authenticated, don't render the dashboard (it will redirect via useEffect)
-  if (!isAuthenticated) return null;
 
   const handleLogout = () => {
     logout();

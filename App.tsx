@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 
 // Declare netlifyIdentity for TypeScript
@@ -18,6 +18,29 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import { Home as HomeIcon } from 'lucide-react';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthReady, isAuthenticated, user } = useApp();
+
+  console.log("Is Auth Ready?", isAuthReady);
+  console.log("Current User Object:", user);
+  console.log("Is Admin Verified?", isAuthenticated);
+
+  if (!isAuthReady) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="ml-4 text-slate-600 font-medium">Loading Auth...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const LanguageSelector = () => {
   const { setLanguage } = useApp();
@@ -98,7 +121,7 @@ const AppContent = () => {
         <Route path="/login" element={<NotFound />} />
         <Route path="/admin" element={<NotFound />} />
         <Route path="/secure-portal-99x" element={<Login />} />
-        <Route path="/secure-portal-99x/dashboard" element={<Admin />} />
+        <Route path="/secure-portal-99x/dashboard" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         
         {/* 404 Catch-all */}
         <Route path="*" element={<NotFound />} />
